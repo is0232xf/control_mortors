@@ -9,10 +9,8 @@ import time
 import RPi.GPIO as GPIO
 
 
-def rotate_motor(mortor_channel):
-    pwm = GPIO.PWM(mortor_channel[2], 50)
+def rotate_motor(mortor_channel, pwm):
     pwm.start(0)
-
     print 'rotation'
     pwm.ChangeDutyCycle(0)
     GPIO.output(mortor_channel[0], 1)
@@ -22,6 +20,23 @@ def rotate_motor(mortor_channel):
     pwm.ChangeDutyCycle(30)
     time.sleep(2)
 
+
+def break_rotation(mortor_channel):
+    print 'break'
+    GPIO.output(mortor_channel[0], 1)
+    GPIO.output(mortor_channel[1], 1)
+    time.sleep(1)
+
+
+def cleanup_GPIO(mortor_channel, pwm):
+    GPIO.output(mortor_channel[0], 0)
+    GPIO.output(mortor_channel[1], 0)
+    pwm.stop()
+
+    GPIO.cleanup()
+    time.sleep(1)
+
+print 'finish'
 
 if __name__ == "__main__":
 
@@ -38,3 +53,4 @@ if __name__ == "__main__":
     mortor_channels1 = [out_channel1, out_channel2, pwm_channel1]
 
     GPIO.setup(mortor_channels1, GPIO.OUT)
+    pwm1 = GPIO.PWM(mortor_channels1[2], 50)
