@@ -37,7 +37,6 @@ def cleanup_GPIO(mortor_channel, pwm):
     pwm.stop()
 
     GPIO.cleanup()
-    time.sleep(1)
     print 'finish'
 
 if __name__ == "__main__":
@@ -54,9 +53,19 @@ if __name__ == "__main__":
     pwm_channel1 = 12
     mortor_channels1 = [out_channel1, out_channel2, pwm_channel1]
 
+    # 2つ目のモーターのチャンネル設定
+    out_channel3 = 24
+    out_channel4 = 26
+    pwm_channel2 = 22
+    mortor_channels2 = [out_channel3, out_channel4, pwm_channel2]
+
     GPIO.setup(mortor_channels1, GPIO.OUT)
     pwm1 = GPIO.PWM(mortor_channels1[2], 50)
+    GPIO.setup(mortor_channels2, GPIO.OUT)
+    pwm2 = GPIO.PWM(mortor_channels2[2], 50)
 
     rotate_motor(mortor_channels1, pwm1)
-    break_rotation(mortor_channels1, pwm1)
-    cleanup_GPIO(mortor_channels1, pwm1)
+    break_rotation(mortor_channels1)
+    rotate_motor(mortor_channels2, pwm2)
+    break_rotation(mortor_channels2)
+    cleanup_GPIO(mortor_channels2, pwm2)
