@@ -67,16 +67,12 @@ if __name__ == "__main__":
 
     # 各ピンのGPIO設定
     GPIO.setup(mortor_channels1, GPIO.OUT)
-    # pwm1 = GPIO.PWM(mortor_channels1[2], dc)
 
     GPIO.setup(mortor_channels2, GPIO.OUT)
-    # pwm2 = GPIO.PWM(mortor_channels1[2], dc)
 
     GPIO.setup(mortor_channels3, GPIO.OUT)
-    # pwm3 = GPIO.PWM(mortor_channels1[2], dc)
 
     GPIO.setup(mortor_channels4, GPIO.OUT)
-    # pwm4 = GPIO.PWM(mortor_channels1[2], dc)
 
     # モータの回転と停止（制御部分）
     rotate_motor(mortor_channels1)
