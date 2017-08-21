@@ -52,3 +52,5 @@ def set_up():
     pwm3.start(0)
     pwm4 = GPIO.PWM(pwm_pin4, 50)
     pwm4.start(0)
+
+    print "set up finished"
