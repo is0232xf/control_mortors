@@ -9,6 +9,7 @@ Created on Mon Aug 21 18:11:55 2017
 import smbus            # use I2C
 import csv
 import matplotlib.pyplot as plt
+import set_up_mortor as mortor
 from time import sleep  # time module
 
 #
@@ -145,6 +146,9 @@ if __name__ == "__main__":
     ax = []
     ay = []
     az = []
+
+    # モータピンのセットアップ　　
+    mortor.set_up()
 
     write_fp = csv.writer(open("logfile.csv", "w"))
 
