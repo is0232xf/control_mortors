@@ -54,3 +54,19 @@ def set_up():
     pwm4.start(0)
 
     print "set up finished"
+
+
+def clean_up():
+    GPIO.cleanup()
+
+
+def rotate_mortor(gpio_pin1, gpio_pin2, pwm_pin):
+    pwm_pin.ChangeDutyCycle(100)
+    GPIO.output(gpio_pin1, 1)
+    GPIO.output(gpio_pin2, 0)
+
+
+def stop_mortor(gpio_pin1, gpio_pin2, pwm_pin):
+    GPIO.output(gpio_pin1, 0)
+    GPIO.output(gpio_pin2, 0)
+    pwm_pin.stop()
