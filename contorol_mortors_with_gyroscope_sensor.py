@@ -9,7 +9,7 @@ Created on Mon Aug 21 18:11:55 2017
 import smbus            # use I2C
 import csv
 import matplotlib.pyplot as plt
-import set_up_mortor as mortor
+import mortor_motion as mortor
 from time import sleep  # time module
 
 #
