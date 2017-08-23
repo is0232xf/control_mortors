@@ -13,13 +13,13 @@ time.sleep(3)
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
-gpio_pin1 = 19
-gpio_pin2 = 21
-pwm_pin1 = 23
+gpio_pin1 = 11
+gpio_pin2 = 13
+pwm_pin1 = 15
 
-gpio_pin3 = 11
-gpio_pin4 = 13
-pwm_pin2 = 15
+gpio_pin3 = 19
+gpio_pin4 = 21
+pwm_pin2 = 23
 
 gpio_pin5 = 8
 gpio_pin6 = 10
