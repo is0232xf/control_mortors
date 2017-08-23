@@ -6,11 +6,13 @@ Created on Tue Aug 22 16:18:23 2017
 """
 
 # import module
+import os
 import smbus            # use I2C
 import csv
 import RPi.GPIO as GPIO
 import matplotlib.pyplot as plt
 from time import sleep  # time module
+import datetime
 
 #
 # define
@@ -29,7 +31,7 @@ PWR_MGMT_1 = 0x6b       # PWR_MGMT_1
 PWR_MGMT_2 = 0x6c       # PWR_MGMT_2
 
 bus = smbus.SMBus(1)
-# Sleep解除.
+# Sleepè§£é¤.
 bus.write_byte_data(DEV_ADDR, PWR_MGMT_1, 0)
 
 #
@@ -37,12 +39,8 @@ bus.write_byte_data(DEV_ADDR, PWR_MGMT_1, 0)
 #
 # 1byte read
 
-gpio_pin1 = 8
-gpio_pin2 = 10
-pwm_pin = 12
-
-
-def setup_gpio(gpio_pin1, gpio_pin2):
+"""
+def setup_gpio(gpio_pin1, gpio_pin2, pwm_pin):
     GPIO.setup(gpio_pin1, GPIO.OUT)
     GPIO.setup(gpio_pin2, GPIO.OUT)
     GPIO.setup(pwm_pin, GPIO.OUT)
@@ -64,6 +62,7 @@ def stop_mortor(gpio_pin1, gpio_pin2, pwm_pin):
     GPIO.cleanup()
     pwm = GPIO.PWM(pwm_pin, 0)
     pwm.stop()
+"""
 
 
 def read_byte(adr):
@@ -88,19 +87,19 @@ def read_word_sensor(adr):
 
 
 #
-# 温度
+# æ¸©åº¦
 #
 def get_temp():
     temp = read_word_sensor(TEMP_OUT)
-    x = temp / 340 + 36.53      # data sheet(register map)記載の計算式.
+    x = temp / 340 + 36.53      # data sheet(register map)è¨è¼ãEè¨ç®å¼E
     return x
 
 #
-# 角速度(full scale range ±250 deg/s
+# è§éåº¦(full scale range Â±250 deg/s
 #        LSB sensitivity 131 LSB/deg/s
-#        -> ±250 x 131 = ±32750 LSB[16bitで表現])
+#        -> Â±250 x 131 = Â±32750 LSB[16bitã§è¡¨ç¾])
 #   Gyroscope Configuration GYRO_CONFIG (reg=0x1B)
-#   FS_SEL(Bit4-Bit3)でfull scale range/LSB sensitivityの変更可.
+#   FS_SEL(Bit4-Bit3)ã§full scale range/LSB sensitivityã®å¤æ´å¯.
 #
 # get gyro data
 
@@ -120,11 +119,11 @@ def get_gyro_data_deg():
     return [x, y, z]
 
 #
-# 加速度(full scale range ±2g
+# å éåº¦(full scale range Â±2g
 #        LSB sensitivity 16384 LSB/g)
-#        -> ±2 x 16384 = ±32768 LSB[16bitで表現])
+#        -> Â±2 x 16384 = Â±32768 LSB[16bitã§è¡¨ç¾])
 #   Accelerometer Configuration ACCEL_CONFIG (reg=0x1C)
-#   AFS_SEL(Bit4-Bit3)でfull scale range/LSB sensitivityの変更可.
+#   AFS_SEL(Bit4-Bit3)ã§full scale range/LSB sensitivityã®å¤æ´å¯.
 #
 # get accel data
 
@@ -152,7 +151,9 @@ def save_gyro_data(gx_data, gy_data, gz_data):
     plt.plot(range(len(gx_data)), gx_data, "-", color="blue")
     plt.plot(range(len(gy_data)), gy_data,  "-", color="red")
     plt.plot(range(len(gz_data)), gz_data,  "-", color="green")
+    # plt.show()
     plt.savefig("gyro_data.png")
+    os.rename("gyro_data.png", "{0:%Y%m%d_%H%M%S}gyro_data.png".format(d))
 
 
 def save_acceleration_data(ax_data, ay_data, az_data):
@@ -162,7 +163,14 @@ def save_acceleration_data(ax_data, ay_data, az_data):
     plt.plot(range(len(ax_data)), ax_data, "-", color="blue")
     plt.plot(range(len(ay_data)), ay_data, "-", color="red")
     plt.plot(range(len(az_data)), az_data, "-", color="green")
+    # plt.show()
     plt.savefig("acceleration_data.png")
+    os.rename("acceleration_data.png", "{0:%Y%m%d_%H%M%S}acceleration_data.png".format(d))
+
+
+gpio_pin1 = 8
+gpio_pin2 = 10
+pwm_pin = 12
 
 
 if __name__ == "__main__":
@@ -173,18 +181,30 @@ if __name__ == "__main__":
     ay = []
     az = []
 
-    # モータピンのセットアップ　　
-    setup_gpio(gpio_pin1, gpio_pin2,  pwm_pin)
+    # モータピンのセットアップ
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
 
-    write_fp = csv.writer(open("logfile.csv", "w"))
+    GPIO.setup(gpio_pin1, GPIO.OUT)
+    GPIO.setup(gpio_pin2, GPIO.OUT)
+    GPIO.setup(pwm_pin, GPIO.OUT)
+    pwm = GPIO.PWM(pwm_pin, 50)
+    pwm.start(0)
+    pwm.ChangeDutyCycle(0)
+    GPIO.output(gpio_pin1, 1)
+    GPIO.output(gpio_pin2, 0)
+    pwm.ChangeDutyCycle(100)
+
+    d = datetime.datetime.now()
+    write_fp = csv.writer(open('logfile.csv', "w"))
 
     for count in range(10):
-        rotate_mortor(gpio_pin1, gpio_pin2, pwm_pin)
-        # 温度.
+
+        # æ¸©åº¦.
         temp = get_temp()
-        # 角速度.
+        # è§éåº¦.
         gyro_x, gyro_y, gyro_z = get_gyro_data_deg()
-        # 加速度
+        # å éåº¦
         accel_x, accel_y, accel_z = get_accel_data_g()
 
         gx.append(gyro_x)
@@ -201,7 +221,10 @@ if __name__ == "__main__":
 
         sleep(1)
 
-    stop_mortor(gpio_pin1, gpio_pin2, pwm_pin)
+    GPIO.output(gpio_pin1, 0)
+    GPIO.output(gpio_pin2, 0)
+    pwm.stop()
     GPIO.cleanup()
+
     save_gyro_data(gx, gy, gz)
     save_acceleration_data(ax, ay, az)
