@@ -8,7 +8,8 @@ Created on Mon Aug 21 18:11:55 2017
 # import module
 import smbus            # use I2C
 import csv
-import time
+import math
+import sys
 import RPi.GPIO as GPIO
 import matplotlib.pyplot as plt
 from time import sleep  # time module
@@ -119,22 +120,28 @@ def get_accel_data_g():
 
 
 def save_gyro_data(gx_data, gy_data, gz_data):
-    plt.xlabel("time")
-    plt.ylabel("deg/s")
-    plt.ylim(-200, 200)
-    plt.plot(range(len(gx_data)), gx_data, "-", color="blue")
-    plt.plot(range(len(gy_data)), gy_data, "-", color="red")
-    plt.plot(range(len(gz_data)), gz_data, "-", color="green")
-    plt.savefig("gyro_data.png")
+    plt.xlabel("time(s)")
+    plt.ylabel("angular velocity(deg/s)")
+    plt.xlim(1, 20)
+    plt.ylim(-20, 20)
+    plt.plot(range(len(gx_data)), gx_data, "-", color="blue", label="role")
+    plt.plot(range(len(gy_data)), gy_data, "-", color="red", label="pitch")
+    plt.plot(range(len(gz_data)), gz_data, "-", color="green", label="yaw")
+    plt.legend()
+    plt.title("angular velocity")
+    plt.savefig("angular_velocity.png")
+    plt.clf()
 
 
 def save_acceleration_data(ax_data, ay_data, az_data):
-    plt.xlabel("time")
-    plt.ylabel("g")
-    plt.ylim(-2.5, 2.5)
-    plt.plot(range(len(ax_data)), ax_data, "-", color="blue")
-    plt.plot(range(len(ay_data)), ay_data, "-", color="red")
-    plt.plot(range(len(az_data)), az_data, "-", color="green")
+    plt.xlabel("time(s)")
+    plt.ylabel("acceleration(g)")
+    plt.ylim(-1.5, 1.5)
+    plt.plot(range(len(ax_data)), ax_data, "-", color="blue", label="surge")
+    plt.plot(range(len(ay_data)), ay_data, "-", color="red", label="sway")
+    plt.plot(range(len(az_data)), az_data, "-", color="green", label="heave")
+    plt.legend()
+    plt.title("acceleration")
     plt.savefig("acceleration_data.png")
 
 
@@ -143,82 +150,104 @@ if __name__ == "__main__":
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
 
-    gpio_pin1 = 19
-    gpio_pin2 = 21
-    pwm_pin1 = 23
+    # モータ1
+    gpio_pin1 = 8
+    gpio_pin2 = 10
+    pwm_pin1 = 12
 
-    gpio_pin3 = 11
-    gpio_pin4 = 13
-    pwm_pin2 = 15
+    # モータ2
+    # gpio_pin3 = 11
+    # gpio_pin4 = 13
+    # pwm_pin2 = 15
 
-    gpio_pin5 = 8
-    gpio_pin6 = 10
-    pwm_pin3 = 12
+    # モータ3
+    gpio_pin5 = 19
+    gpio_pin6 = 21
+    pwm_pin3 = 23
 
-    gpio_pin7 = 22
-    gpio_pin8 = 24
-    pwm_pin4 = 26
+    # モータ4
+    # gpio_pin7 = 22
+    # gpio_pin8 = 24
+    # pwm_pin4 = 26
+
+    case = sys.argv
 
     # モータピンのセットアップ
     GPIO.setup(gpio_pin1, GPIO.OUT)
     GPIO.setup(gpio_pin2, GPIO.OUT)
     GPIO.setup(pwm_pin1, GPIO.OUT)
 
-    GPIO.setup(gpio_pin3, GPIO.OUT)
-    GPIO.setup(gpio_pin4, GPIO.OUT)
-    GPIO.setup(pwm_pin2, GPIO.OUT)
+    # GPIO.setup(gpio_pin3, GPIO.OUT)
+    # GPIO.setup(gpio_pin4, GPIO.OUT)
+    # GPIO.setup(pwm_pin2, GPIO.OUT)
 
     GPIO.setup(gpio_pin5, GPIO.OUT)
     GPIO.setup(gpio_pin6, GPIO.OUT)
     GPIO.setup(pwm_pin3, GPIO.OUT)
 
-    GPIO.setup(gpio_pin7, GPIO.OUT)
-    GPIO.setup(gpio_pin8, GPIO.OUT)
-    GPIO.setup(pwm_pin4, GPIO.OUT)
+    # GPIO.setup(gpio_pin7, GPIO.OUT)
+    # GPIO.setup(gpio_pin8, GPIO.OUT)
+    # GPIO.setup(pwm_pin4, GPIO.OUT)
 
     pwm1 = GPIO.PWM(pwm_pin1, 50)
     pwm1.start(0)
-    pwm2 = GPIO.PWM(pwm_pin2, 50)
-    pwm2.start(0)
+    # pwm2 = GPIO.PWM(pwm_pin2, 50)
+    # pwm2.start(0)
     pwm3 = GPIO.PWM(pwm_pin3, 50)
     pwm3.start(0)
-    pwm4 = GPIO.PWM(pwm_pin4, 50)
-    pwm4.start(0)
+    # pwm4 = GPIO.PWM(pwm_pin4, 50)
+    # pwm4.start(0)
 
     print("start")
     pwm1.ChangeDutyCycle(0)
     GPIO.output(gpio_pin1, 1)
     GPIO.output(gpio_pin2, 0)
-    pwm2.ChangeDutyCycle(0)
-    GPIO.output(gpio_pin3, 1)
-    GPIO.output(gpio_pin4, 0)
+    # pwm2.ChangeDutyCycle(0)
+    # GPIO.output(gpio_pin3, 1)
+    # GPIO.output(gpio_pin4, 0)
     pwm3.ChangeDutyCycle(0)
     GPIO.output(gpio_pin5, 1)
     GPIO.output(gpio_pin6, 0)
-    pwm4.ChangeDutyCycle(0)
-    GPIO.output(gpio_pin7, 1)
-    GPIO.output(gpio_pin8, 0)
+    # pwm4.ChangeDutyCycle(0)
+    # GPIO.output(gpio_pin7, 1)
+    # GPIO.output(gpio_pin8, 0)
 
-    print("change")
-    pwm1.ChangeDutyCycle(100)
-    pwm2.ChangeDutyCycle(100)
-    pwm3.ChangeDutyCycle(100)
-    pwm4.ChangeDutyCycle(100)
-    time.sleep(3)
+    if case[1] == '0':
+        pwm_value1 = 0
+        pwm_value2 = 100
+    elif case[1] == '30':
+        pwm_value1 = 100
+        pwm_value2 = pwm_value1 * math.sqrt(3) * (13.0/45.0)
+    elif case[1] == '45':
+        pwm_value1 = 100
+        pwm_value2 = pwm_value1 * (13.0/15.0)
+    elif case[1] == '60':
+        pwm_value1 = 100
+        pwm_value2 = pwm_value1 * math.sqrt(3) * (13.0/15.0)
+    elif case[1] == '90':
+        pwm_value1 = 100
+        pwm_value2 = 0
 
-    print("change")
-    pwm1.ChangeDutyCycle(30)
-    pwm2.ChangeDutyCycle(30)
-    pwm3.ChangeDutyCycle(30)
-    pwm4.ChangeDutyCycle(30)
-    time.sleep(3)
+    print("change angle: " + case[1])
+    pwm1.ChangeDutyCycle(pwm_value2)
+    # pwm2.ChangeDutyCycle(100)
+    pwm3.ChangeDutyCycle(pwm_value1)
+    # pwm4.ChangeDutyCycle(100)
+    # time.sleep(3)
 
-    print("change")
-    pwm1.ChangeDutyCycle(50)
-    pwm2.ChangeDutyCycle(50)
-    pwm3.ChangeDutyCycle(50)
-    pwm4.ChangeDutyCycle(50)
-    time.sleep(1)
+    # print("change")
+    # pwm1.ChangeDutyCycle(30)
+    # pwm2.ChangeDutyCycle(30)
+    # pwm3.ChangeDutyCycle(30)
+    # pwm4.ChangeDutyCycle(30)
+    # time.sleep(3)
+
+    # print("change")
+    # pwm1.ChangeDutyCycle(50)
+    # pwm2.ChangeDutyCycle(50)
+    # pwm3.ChangeDutyCycle(50)
+    # pwm4.ChangeDutyCycle(50)
+    # time.sleep(1)
 
     # print("stop")
     # GPIO.output(gpio_pin1, 0)
@@ -258,9 +287,11 @@ if __name__ == "__main__":
     ay = []
     az = []
 
+    t = 5
+
     write_fp = csv.writer(open("logfile.csv", "w"))
 
-    for count in range(50):
+    for count in range(t):
         # 温度.
         temp = get_temp()
         # 小数点以下第1位まで表示.
@@ -304,33 +335,23 @@ if __name__ == "__main__":
 
         sleep(1)
 
+    GPIO.output(gpio_pin1, 0)
+    GPIO.output(gpio_pin2, 0)
+    # GPIO.output(gpio_pin3, 0)
+    # GPIO.output(gpio_pin4, 0)
+    GPIO.output(gpio_pin5, 0)
+    GPIO.output(gpio_pin6, 0)
+    # GPIO.output(gpio_pin7, 0)
+    # GPIO.output(gpio_pin8, 0)
+    pwm1.stop()
+    # pwm2.stop()
+    pwm3.stop()
+    # pwm4.stop()
+
+    GPIO.cleanup()
+    print("stop")
+
     save_gyro_data(gx, gy, gz)
     save_acceleration_data(ax, ay, az)
     print("finished saving gyroscope data")
     print("finished saving acceleration data")
-
-    print("stop")
-    GPIO.output(gpio_pin1, 1)
-    GPIO.output(gpio_pin2, 1)
-    GPIO.output(gpio_pin3, 1)
-    GPIO.output(gpio_pin4, 1)
-    GPIO.output(gpio_pin5, 1)
-    GPIO.output(gpio_pin6, 1)
-    GPIO.output(gpio_pin7, 1)
-    GPIO.output(gpio_pin8, 1)
-    time.sleep(3)
-
-    GPIO.output(gpio_pin1, 0)
-    GPIO.output(gpio_pin2, 0)
-    GPIO.output(gpio_pin3, 0)
-    GPIO.output(gpio_pin4, 0)
-    GPIO.output(gpio_pin5, 0)
-    GPIO.output(gpio_pin6, 0)
-    GPIO.output(gpio_pin7, 0)
-    GPIO.output(gpio_pin8, 0)
-    pwm1.stop()
-    pwm2.stop()
-    pwm3.stop()
-    pwm4.stop()
-
-    GPIO.cleanup()

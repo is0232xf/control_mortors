@@ -8,7 +8,7 @@ Created on Wed Aug 09 16:48:56 2017
 import time
 import RPi.GPIO as GPIO
 
-time.sleep(3)
+time.sleep(1)
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
@@ -21,9 +21,9 @@ gpio_pin3 = 11
 gpio_pin4 = 13
 pwm_pin2 = 15
 
-gpio_pin5 = 8
-gpio_pin6 = 10
-pwm_pin3 = 12
+gpio_pin5 = 29
+gpio_pin6 = 31
+pwm_pin3 = 33
 
 gpio_pin7 = 22
 gpio_pin8 = 24
@@ -104,26 +104,6 @@ GPIO.output(gpio_pin7,  0)
 GPIO.output(gpio_pin8, 0)
 time.sleep(3)
 
-print("restart")
-pwm1.ChangeDutyCycle(0)
-GPIO.output(gpio_pin1, 0)
-GPIO.output(gpio_pin2, 1)
-pwm2.ChangeDutyCycle(0)
-GPIO.output(gpio_pin3,  0)
-GPIO.output(gpio_pin4, 1)
-pwm3.ChangeDutyCycle(0)
-GPIO.output(gpio_pin5, 0)
-GPIO.output(gpio_pin6, 1)
-pwm4.ChangeDutyCycle(0)
-GPIO.output(gpio_pin7,  0)
-GPIO.output(gpio_pin8, 1)
-
-pwm1.ChangeDutyCycle(100)
-pwm2.ChangeDutyCycle(100)
-pwm3.ChangeDutyCycle(100)
-pwm4.ChangeDutyCycle(100)
-time.sleep(3)
-
 print("stop")
 GPIO.output(gpio_pin1, 1)
 GPIO.output(gpio_pin2, 1)
@@ -133,7 +113,7 @@ GPIO.output(gpio_pin5, 1)
 GPIO.output(gpio_pin6, 1)
 GPIO.output(gpio_pin7, 1)
 GPIO.output(gpio_pin8, 1)
-time.sleep(3)
+time.sleep(1)
 
 GPIO.output(gpio_pin1, 0)
 GPIO.output(gpio_pin2, 0)
